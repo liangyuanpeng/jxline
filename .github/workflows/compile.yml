@@ -1,0 +1,28 @@
+name: compile all of project
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  compile:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ "8","11","17" ]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      id: setup-java
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: run ci
+      run: |
+        mvn install
