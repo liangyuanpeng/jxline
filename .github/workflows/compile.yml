@@ -1,4 +1,4 @@
-name: compile all of project
+name: compile
 
 on:
   pull_request:
@@ -23,6 +23,19 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
 
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
     - name: run ci
       run: |
         mvn install
+
+    - name: Build and analyze
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=liangyuanpeng_jxline
